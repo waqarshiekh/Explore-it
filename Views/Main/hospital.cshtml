@@ -1,0 +1,248 @@
+﻿@{
+    ViewBag.Title = "Bank";
+}
+
+<h2 style="margin-left:10%">  Hospitals</h2>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Hospitals</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ek+Mukta">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<style>
+    .clearfix:after {
+        display: block;
+        clear: both;
+    }
+
+    /*----- Menu Outline -----*/
+    .menu-wrap {
+        width: 100%;
+        box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
+        background: #3e3436;
+    }
+
+    .menu {
+        width: 1000px;
+        margin: 0px auto;
+    }
+
+        .menu li {
+            margin: 0px;
+            list-style: none;
+            font-family: 'Ek Mukta';
+        }
+
+        .menu a {
+            transition: all linear 0.15s;
+            color: #919191;
+        }
+
+        .menu button {
+            transition: all linear 0.15s;
+            color: #919191;
+        }
+
+        .menu li:hover > a, .menu .current-item > a {
+            text-decoration: none;
+            color: #be5b70;
+        }
+
+        .menu .arrow {
+            font-size: 11px;
+            line-height: 0%;
+        }
+
+        /*----- Top Level -----*/
+        .menu > ul > li {
+            float: left;
+            display: inline-block;
+            position: relative;
+            font-size: 19px;
+        }
+
+            .menu > ul > li > a {
+                padding: 10px 40px;
+                display: inline-block;
+                text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+            }
+
+            .menu > ul > li:hover > a, .menu > ul > .current-item > a {
+                background: #2e2728;
+            }
+
+        /*----- Bottom Level -----*/
+        .menu li:hover .sub-menu {
+            z-index: 1;
+            opacity: 1;
+        }
+
+    .sub-menu {
+        width: 160%;
+        padding: 5px 0px;
+        position: absolute;
+        top: 100%;
+        left: 0px;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity linear 0.15s;
+        box-shadow: 0px 2px 3px rgba(0,0,0,0.2);
+        background: #2e2728;
+    }
+
+        .sub-menu li {
+            display: block;
+            font-size: 16px;
+        }
+
+            .sub-menu li a {
+                padding: 10px 30px;
+                display: block;
+            }
+
+                .sub-menu li a:hover, .sub-menu .current-item a {
+                    background: #3e3436;
+                }
+</style>
+<script>
+    var map;
+    var infowindow;
+    var lat; var long;
+    var labels = 'U';
+    var labelIndex = 0;
+        $(document).ready(function () {
+
+            //alert("ready");
+            if (navigator.geolocation) {
+              //  alert("in if statemtn");
+                navigator.geolocation.watchPosition(showPosition);
+            } else { }
+
+
+            function showPosition(position) {
+                //     x.innerHTML="Latitude: " + position.coords.latitude +
+                //       "<br>Longitude: " + position.coords.longitude;
+                lat = position.coords.latitude;
+                long = position.coords.longitude;
+                //alert("location is get");
+            //    alert("in showposition");
+
+
+                $("#mynav").show();
+
+                var pyrmont = new google.maps.LatLng(lat, long);
+
+                map = new google.maps.Map(document.getElementById('map-canvas'), {
+                    center: pyrmont,
+                    zoom: 16
+                });
+
+                var markerPos = new google.maps.LatLng(lat, long);
+                //var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+                var marker = new google.maps.Marker({
+                    position: markerPos,
+                    map: map,
+                    label: labels,
+                    title: "you are here",
+                    icon: Image,
+                });
+
+
+                var request = {
+                    location: pyrmont,
+                    radius: 500,
+                    //types: ['hospital', 'health']
+                    // types: ["restaurant", "food", "establishment"]
+                    //query: 'Atm'
+                    types: ['hospital']
+                    //name: "McDonald's"
+
+                    // this is where you set the map to get the hospitals and health related places
+                };
+                infowindow = new google.maps.InfoWindow();
+                //alert("infowindow");
+                var service = new google.maps.places.PlacesService(map);
+                // alert("ok");
+                service.nearbySearch(request, callback);
+
+            }
+        });
+
+        function callback(results, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                for (var i = 0; i < results.length; i++) {
+                    createMarker(results[i]);
+                }
+            }
+        }
+
+
+
+
+        function createMarker(place) {
+            var placeLoc = place.geometry.location;
+            var marker = new google.maps.Marker({
+                map: map,
+                position: place.geometry.location
+            });
+
+            google.maps.event.addListener(marker, 'click', function () {
+                infowindow.setContent(place.name);
+                infowindow.open(map, this);
+            });
+        }
+
+
+
+</script>
+
+
+<style>
+    html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+    }
+</style>
+
+
+<body style="overflow-x:hidden">
+    <br />
+
+
+
+    <div class="menu-wrap" id="mynav">
+        <nav class="menu">
+            <ul class="clearfix">
+
+                <li>
+                    <a href="#">Explore it <span class="arrow">&#9660;</span></a>
+
+                    <ul class="sub-menu">
+                        <li><a href="/Main/Index" onclick='university()'>Universites</a></li>
+                        <li><a href="/Main/Bank">Banks</a></li>
+                        <li><a href="/Main/restaurant">Resturants</a></li>
+                        <li><a href="/Main/hospital">Hospitals and Health Center</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+
+
+
+
+
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+
+    <div id="map-canvas"></div>
+
+
+</body>
